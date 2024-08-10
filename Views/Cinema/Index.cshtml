@@ -1,0 +1,23 @@
+﻿@model IEnumerable<Cinema>
+
+<h1>Cinemas</h1>
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th scope="col">Name</th>
+            <th scope="col"></th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>
+                    <a class="btn btn-primary" asp-action="Details" asp-route-id="@item.Id">All Movies</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>  
