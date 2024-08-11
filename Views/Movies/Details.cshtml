@@ -33,6 +33,30 @@
                         <span class="badge bg-primary text-white">UPCOMING</span>
                     }
                 </p>
+                <p class="card-text">
+                <p><strong>Trailer:</strong></p>
+                    @if (!string.IsNullOrEmpty(Model.TrailerUrl))
+                    {
+                        <iframe width="300" height="auto" src="@Model.TrailerUrl" frameborder="0" allowfullscreen></iframe>
+                    }
+                    else
+                    {
+                        <span>No trailer available</span>
+                    }
+                </p>
+                <p class="card-text">
+                    <b>Actors:</b>
+                    <hr />
+                    <div class="d-flex flex-wrap">
+                        @foreach (var actorMovie in Model.ActorMovies)
+                        {
+                            var actor = actorMovie.Actor;
+                            <div class="me-2 mb-2">
+                                <a asp-controller="Actor" asp-action="Index" asp-route-id="@actor.Id"><img class="border-info rounded-circle" src="~/images/cast/@actor.ProfilePicture" style="max-width:150px" alt="@actor.FirstName @actor.LastName" /></a>
+                            </div>
+                        }
+                    </div>
+                </p>
             </div>
             <div class="card-footer">
                 <a class="btn btn-outline-primary" asp-action="Index">Back to List</a>
