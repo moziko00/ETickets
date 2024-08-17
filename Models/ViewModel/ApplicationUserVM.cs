@@ -18,5 +18,7 @@ namespace ETickets.Models.ViewModel
         [Required]
         [DataType(DataType.EmailAddress)]
         public string Email { get; set; }
+        public string Address { get; set; }
+
     }
 }

@@ -35,10 +35,12 @@ namespace ETickets.Controllers
                 ApplicationUser user = new()
                 {
                     UserName = userVM.Name,
-                    Email = userVM.Email
+                    Email = userVM.Email,
+                    PasswordHash=userVM.Password,
+                    Address = userVM.Address
                 };
                 await userManager.CreateAsync(user, userVM.Password);
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Index", "Movies");
             }
             return View(userVM);
         }
@@ -74,6 +76,12 @@ namespace ETickets.Controllers
 
             }
             return View(loginVM);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Logout()
+        {
+            await signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Movies");
         }
     }
 }
