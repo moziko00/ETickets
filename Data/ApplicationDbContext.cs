@@ -1,24 +1,18 @@
 ﻿using ETickets.Models;
+using ETickets.Models.ViewModel;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace ETickets.Data
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
-        public DbSet<Movie> Movies { get; set; }
-        public DbSet<Category> Categories { get; set; }
-        public DbSet<Cinema> Cinemas { get; set; }
-        public DbSet<Actor> Actors { get; set; }
-        public DbSet<ActorMovie> ActorMovies { get; set; }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
         {
-            base.OnConfiguring(optionsBuilder);
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
-                .Build()
-                .GetConnectionString("DefaultConnetion");
-            optionsBuilder.UseSqlServer(builder);
+
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -36,5 +30,14 @@ namespace ETickets.Data
                 .HasForeignKey(am => am.ActorsId);
             base.OnModelCreating(modelBuilder);
         }
+        public DbSet<Movie> Movies { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Cinema> Cinemas { get; set; }
+        public DbSet<Actor> Actors { get; set; }
+        public DbSet<ActorMovie> ActorMovies { get; set; }
+
+        public DbSet<ApplicationUserVM> ApplicationUserVM { get; set; } = default!;
+        public DbSet<ETickets.Models.ViewModel.LoginVM> LoginVM { get; set; } = default!;
+        public DbSet<ETickets.Models.ViewModel.RoleVM> RoleVM { get; set; } = default!;
     }
 }

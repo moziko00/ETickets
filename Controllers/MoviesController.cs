@@ -1,4 +1,7 @@
-﻿using ETickets.Data;
+﻿using ETickets._Repository;
+using ETickets._Repository.IRepository;
+using ETickets.Data;
+using ETickets.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -7,57 +10,60 @@ namespace ETickets.Controllers
 {
     public class MoviesController : Controller
     {
-        ApplicationDbContext context = new ApplicationDbContext();
+        private readonly IMoviesRepository moviesRepository;
+
+        public MoviesController(IMoviesRepository moviesRepository)
+        {
+            this.moviesRepository = moviesRepository;
+        }
+
+
         public IActionResult Index()
         {
-            var movies = context.Movies
-                .Include(m => m.Cinema)    
-                .Include(m => m.Category)  
-                .ToList();  
-
+            var movies = moviesRepository.GetAll(m => m.Category, m => m.Cinema);
             return View(movies);
+        }
+
+        public IActionResult Edit(int id)
+        {
+            var movie = moviesRepository.Get(x => x.Id == id);
+            return movie != null ? View(movie) : RedirectToAction("NotFound", "Home");
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Edit(Movie movie)
+        {
+            moviesRepository.Edit(movie);
+            moviesRepository.Commit();
+            return RedirectToAction("Index");
         }
         public IActionResult Search(string searchString)
         {
-            if (string.IsNullOrWhiteSpace(searchString))
-            {
-                
-                return RedirectToAction(nameof(Index));
-            }
-
-            searchString = searchString.ToLower();
-
-            var movies = context.Movies
-                .Include(m => m.Cinema) 
-                .Include(m => m.Category) 
-                .Where(m => m.Name.ToLower().Contains(searchString))
-                .ToList();
-
-            if (movies.Count == 0)
-            {
-                
-                return View("NotFound"); 
-            }
-
-            return View("Index", movies);
+            var movie= moviesRepository.Get(x => x.Name == searchString, x => x.Category, x => x.Cinema);
+            return View ("Index", movie);
         }
 
 
         public IActionResult Details(int id)
         {
-            var movie = context.Movies
-                .Include(m => m.Cinema)
-                .Include(m => m.Category)
-                .Include(m => m.ActorMovies) 
-                    .ThenInclude(am => am.Actor) 
-                .FirstOrDefault(m => m.Id == id);
+            var movie = moviesRepository.Get(x => x.Id == id).FirstOrDefault();
 
-            if (movie == null)
+            return movie != null ? View(movie) : RedirectToAction("NotFound", "Home");
+        }
+
+        public IActionResult Delete(int id)
+        {
+            var movie = moviesRepository.Get(x => x.Id == id).FirstOrDefault();
+            if (movie != null)
             {
-                return NotFound();
+                moviesRepository.Delete(movie);
+                moviesRepository.Commit();
+                return RedirectToAction("Index");
             }
-
-            return View(movie);
+            else
+            {
+                return RedirectToAction("NotFound", "Home");
+            }
         }
 
     }
