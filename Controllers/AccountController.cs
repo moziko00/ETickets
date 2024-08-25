@@ -2,6 +2,7 @@
 using ETickets.Models.ViewModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Threading.Tasks;
 
 namespace ETickets.Controllers
@@ -23,6 +24,12 @@ namespace ETickets.Controllers
 
         public IActionResult Register()
         {
+            if (User.IsInRole("Admin"))
+            {
+                var result = roleManager.Roles.Select(x => new SelectListItem
+                { Value = x.Name, Text = x.Name });
+                ViewBag.roles = result;
+            }
             return View();
         }
 
@@ -39,8 +46,18 @@ namespace ETickets.Controllers
                     PasswordHash=userVM.Password,
                     Address = userVM.Address
                 };
-                await userManager.CreateAsync(user, userVM.Password);
-                return RedirectToAction("Index", "Movies");
+                var result = await userManager.CreateAsync(user, userVM.Password);
+                if(result.Succeeded)
+                {
+                    if (User.IsInRole("Admin"))
+                        await userManager.AddToRoleAsync(user, userVM.Role);
+                    else
+                        await userManager.AddToRoleAsync(user, "User");
+
+                    await signInManager.SignInAsync(user, false);
+                    return RedirectToAction("Index", "Movies");
+                }
+                ModelState.AddModelError("Password", "Don't Match Roles");
             }
             return View(userVM);
         }
@@ -77,10 +94,33 @@ namespace ETickets.Controllers
             }
             return View(loginVM);
         }
-        [HttpPost]
+
+        [HttpGet]
         public async Task<IActionResult> Logout()
         {
             await signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Movies");
+        }
+
+        public IActionResult CreateRole()
+        {
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateRole(RoleVM roleVM)
+        {
+            if (ModelState.IsValid)
+            {
+                IdentityRole user = new(roleVM.Name);
+                await roleManager.CreateAsync(user);
+                return RedirectToAction("CreateRole");
+            }
+            return View(roleVM);
+
+        }
+        public IActionResult AccessDenied()
+        {
             return RedirectToAction("Index", "Movies");
         }
     }

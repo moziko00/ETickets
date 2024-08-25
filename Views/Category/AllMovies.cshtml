@@ -1,0 +1,25 @@
+﻿@model IEnumerable<ETickets.Models.Movie>
+<div class="row row-cols-1 row-cols-md-4 g-4">
+    @foreach (var item in Model)
+    {
+        <div class="card">
+            <img src="~/imgs/@item.ImgUrl" class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">@item.Name</h5>
+                <p class="card-text"> <srtong>Price: </srtong>@item.Price$</p>
+                <p class="card-text"><srtong>Cinema: </srtong>@item.Cinema.Name</p>
+            </div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><srtong>Start at: </srtong>@item.StartDate</li>
+                <li class="list-group-item"><srtong>End at: </srtong>@item.EndDate</li>
+                <li class="list-group-item"><srtong>Category: </srtong>@item.Category.Name</li>
+                <li class="btn btn-primary">@item.MovieStatus</li>
+            </ul>
+            <div class="card-body">
+                <a href="/Movie/Details/id=@item.Id" class="btn btn-info">More Details</a>
+                <a href="#" type="button" class="btn btn-outline-light">Book Tickets</a>
+            </div>
+        </div>
+    }
+</div>
+

@@ -3,6 +3,7 @@ using ETickets._Repository.IRepository;
 using ETickets.Data;
 using ETickets.Models;
 using ETickets.Repositor.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -76,6 +77,13 @@ namespace ETickets.Controllers
             {
                 return RedirectToAction("NotFound", "Home");
             }
+        }
+        [AllowAnonymous]
+        public IActionResult AllMovies(int id)
+        {
+            var result = movieRepository.Get(x => x.CategoryId == id, x => x.Category
+            , x => x.Cinema);
+            return View(result);
         }
     }
 }

@@ -6,6 +6,10 @@ using ETickets.Repositor.IRepository;
 using ETickets.Repositor;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using ETickets.Repository.IRepository;
+using ETickets.Repository;
+using Stripe;
 
 public class Program
 {
@@ -14,25 +18,26 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
 
 
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        {
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnetion"));
-        });
-
-
+        // Add services to the container.
         builder.Services.AddControllersWithViews();
+        builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+        StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+        //Identity Service
+        builder.Services.AddIdentity<ApplicationUser, IdentityRole>().
+        AddEntityFrameworkStores<ApplicationDbContext>();
 
-        builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+
 
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         builder.Services.AddScoped<IActorRepository, ActorRepository>();
         builder.Services.AddScoped<IActorMovieRepository, ActorMovieRepository>();
         builder.Services.AddScoped<IMoviesRepository, MoviesRepository>();
         builder.Services.AddScoped<ICinemaRepository, CinemaRepository>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+        builder.Services.AddScoped<ICartRepository, CartRepository>();
+
 
         var app = builder.Build();
 
@@ -45,9 +50,10 @@ public class Program
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
-        app.UseRouting();
-        app.UseAuthorization();
 
+        app.UseRouting();
+
+        app.UseAuthorization();
         app.MapControllerRoute(
             name: "default",
             pattern: "{controller=Movies}/{action=Index}/{id?}");

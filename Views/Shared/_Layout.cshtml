@@ -117,6 +117,15 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-area="" asp-controller="Cinema" asp-action="Index">Cinemas</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Cart" asp-action="Index">MyCart</a>
+                            </li>
+                        }
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Register">Add User</a>
+                            </li>
                         }
 
                     </ul>
